@@ -9,6 +9,7 @@ INPUT:
 - Remaining wickets left
 - Runs require to win the match
 - For each remaining player, a probability of scoring runs;
+  (assuming the batting order is the same as input order)
   - probability of scoring either 0, 1, 2, 3, 4, 5, 6 on each ball or get out
 
 RULES OF THE GAME:
@@ -21,3 +22,7 @@ OUTPUT:
 - Status of the game after each ball played
 - Summary of the game after each over played
 - Match result after end of all overs or players
+
+APPROACH TO CHALLENGE:
+- read the articles attached on SOLID principles, TDD and clean code
+- read the problem statement and wrote inital understanding of input, contraints and expected output
