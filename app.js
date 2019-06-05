@@ -1,4 +1,6 @@
 const { SimulateCricketMatch } = require('./simulate-game')
+const { distributeProbability } = require('./library')
+const Player = require('./Player')
 
 /*
   accepts user input (current cricket game state) in string format
@@ -11,62 +13,39 @@ const { SimulateCricketMatch } = require('./simulate-game')
   and simulates the game which generates the result,
   returns the formatted result in string format
  */
-const main = () => {
+function main () {
   // set initial state of the match
-  const RUMRAHProb = [20, 30, 15, 5, 5, 1, 4, 20]
-    .map((p, i) => (new Array(p).fill(i)))
-    .reduce((a, b) => [...a, ...b])
-  const SHASHIProb = [30, 25, 5, 0, 5, 1, 4, 30]
-    .map((p, i) => (new Array(p).fill(i)))
-    .reduce((a, b) => [...a, ...b])
-  const KIRATProb = [5, 30, 25, 10, 15, 1, 9, 5]
-    .map((p, i) => (new Array(p).fill(i)))
-    .reduce((a, b) => [...a, ...b])
-  const NSProb = [10, 40, 20, 5, 10, 1, 4, 10]
-    .map((p, i) => (new Array(p).fill(i)))
-    .reduce((a, b) => [...a, ...b])
+  const playersData = [
+    ['Kirat Boli', [5, 30, 25, 10, 15, 1, 9, 5]],
+    ['N.S Nodhi', [10, 40, 20, 5, 10, 1, 4, 10]],
+    ['R Rumrah', [20, 30, 15, 5, 5, 1, 4, 20]],
+    ['Shashi Henra', [30, 25, 5, 0, 5, 1, 4, 30]]
+  ]
+
+  const players = playersData
+    .map(pd => (new Player(pd[0], distributeProbability(pd[1]))))
+
+  const battingTeam = {
+    name: 'RCB',
+    playersQueue: players,
+    playersPlayed: [players.shift(), players.shift()],
+    ballsPlayed: 0,
+    oversPlayed: 0,
+    runs: 0
+  }
+
+  const bowlingTeam = { name: 'CSK' }
+
+  const overs = 4
+  const runsTarget = 40
 
   const matchState = {
-    battingTeam: {
-      name: 'RCB',
-      players: [
-        {
-          name: 'RUMRAH',
-          probabilityArray: RUMRAHProb,
-          ballsPlayed: 0,
-          runs: 0
-        },
-        {
-          name: 'SHASHI',
-          probabilityArray: SHASHIProb,
-          ballsPlayed: 0,
-          runs: 0
-        }
-      ],
-      playersOut: [],
-      runs: 0,
-      ballsPlayed: 0,
-      oversPlayed: 0
-    },
-    bowlingTeam: {
-      name: 'CSK'
-    },
-    remainingOvers: 4,
-    requiredRuns: 40,
-    playerOnStrike: {
-      name: 'KIRAT',
-      probabilityArray: KIRATProb,
-      played: true,
-      ballsPlayed: 0,
-      runs: 0
-    },
-    playerOnNonStrike: {
-      name: 'NS',
-      probabilityArray: NSProb,
-      played: true,
-      ballsPlayed: 0,
-      runs: 0
-    }
+    battingTeam,
+    bowlingTeam,
+    overs,
+    runsTarget,
+    playerOnStrike: battingTeam.playersPlayed[0],
+    playerOnNonStrike: battingTeam.playersPlayed[1]
   }
 
   const result = SimulateCricketMatch(matchState)

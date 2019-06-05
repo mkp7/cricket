@@ -1,88 +1,120 @@
+const {
+  getBattingTeamWonString,
+  getBowlingTeamWonString,
+  getBatsmanSummary,
+  getOverSummary,
+  getBallSummary,
+  playBall
+} = require('./library')
 
-const playBall = probabilityArray => {
-  if (!Array.isArray(probabilityArray) ||
-      probabilityArray.length !== 100) {
-    return null
-  }
-
-  return probabilityArray[Math.floor(Math.random() * 100)]
+function swapPlayers (matchState) {
+  [
+    matchState.playerOnStrike,
+    matchState.playerOnNonStrike
+  ] = [
+    matchState.playerOnNonStrike,
+    matchState.playerOnStrike
+  ]
 }
 
-// Batting team wins by some wickets
-// Bowling team wins by some runs
-
-// updates the match state and returns the match status
-const updateMatchState = (result, matchState) => {
-  // player on strike plays the ball (StateUpdate)
+/*
+  updates the match state for each ball played and returns the match status
+ */
+function updateMatchState (result, matchState) {
   matchState.playerOnStrike.ballsPlayed += 1
   matchState.battingTeam.ballsPlayed += 1
 
   if (result === 7) {
-    // player on strike is out (StateUpdate)
-    matchState.battingTeam.playersOut.push(matchState.playerOnStrike)
+    matchState.playerOnStrike.isOut = true
 
-    if (matchState.battingTeam.players.length > 0) {
-      // next player comes on strike (StateUpdate)
-      matchState.playerOnStrike = matchState.battingTeam.players.shift()
+    console.log(getBallSummary(
+      matchState.playerOnStrike,
+      result,
+      matchState.battingTeam.oversPlayed,
+      matchState.battingTeam.ballsPlayed % 7
+    ))
+
+    if (matchState.battingTeam.playersQueue.length > 0) {
+      matchState.playerOnStrike = matchState.battingTeam.playersQueue.shift()
+      matchState.battingTeam.playersPlayed.push(matchState.playerOnStrike)
     } else {
-      // match is over, bowling team wins by runs required
-      // return `${matchState.bowlingTeam.name} won by ${matchState.requiredRuns - matchState.battingTeam.runs} runs and ${(matchState.remainingOvers * 6) - matchState.battingTeam.ballsPlayed} balls remaining`
+      return getBowlingTeamWonString(
+        matchState.bowlingTeam.name,
+        matchState.runsTarget - 1 - matchState.battingTeam.runs,
+        (matchState.overs * 6) - matchState.battingTeam.ballsPlayed
+      )
     }
   } else {
-    // player scores 0 to 6 runs (StateUpdate)
     matchState.playerOnStrike.runs += result
     matchState.battingTeam.runs += result
 
+    console.log(getBallSummary(
+      matchState.playerOnStrike,
+      result,
+      matchState.battingTeam.oversPlayed,
+      matchState.battingTeam.ballsPlayed % 7
+    ))
+
     if (result % 2 === 1) {
-      // switch the strike (StateUpdate)
-      [
-        matchState.playerOnStrike,
-        matchState.playerOnNonStrike
-      ] = [
-        matchState.playerOnNonStrike,
-        matchState.playerOnStrike
-      ]
+      swapPlayers(matchState)
     }
 
-    if (matchState.battingTeam.runs >= matchState.requiredRuns) {
-      // match is over, batting team wins by wickets left
-      // return `${}`
+    if (matchState.battingTeam.runs >= matchState.runsTarget) {
+      return getBattingTeamWonString(
+        matchState.battingTeam.name,
+        matchState.battingTeam.playersQueue.length + 1,
+        (matchState.overs * 6) - matchState.battingTeam.ballsPlayed)
     }
   }
 
   return false
 }
 
-function logMatchState (matchState) {
-  console.log(matchState)
-}
+/*
+ simulate game
+ */
+function SimulateCricketMatch (matchState) {
+  let matchStatus = false
 
-// simulate game
-const SimulateCricketMatch = (matchState) => {
-  // play each over
-  while (matchState.battingTeam.oversPlayed < matchState.remainingOvers) {
-    // start an over (StateUpdate)
-    matchState.battingTeam.oversPlayed += 1
-
-    // reset the ballsPlayed for each new over
+  console.log(getOverSummary(
+    matchState.overs - matchState.battingTeam.oversPlayed,
+    matchState.runsTarget - matchState.battingTeam.runs))
+  console.log()
+  while (matchState.battingTeam.oversPlayed < matchState.overs) {
     let ballsPlayed = 0
 
-    // play 6 balls for an over
-    while (ballsPlayed <= 6) {
-      ballsPlayed += 1 // ball
+    while (ballsPlayed < 6) {
+      const result = playBall(matchState.playerOnStrike.scoreProbabilities)
+      matchStatus = updateMatchState(result, matchState)
 
-      const result = playBall(matchState.playerOnStrike.probabilityArray)
-      const matchStatus = updateMatchState(result, matchState)
+      if (matchStatus !== false) {
+        console.log()
+        console.log(matchStatus)
+        matchState.battingTeam.playersPlayed.forEach(p => console.log(getBatsmanSummary(p)))
+        return matchState
+      }
 
-      // log the balls' status after each ball played
-      // check match state
+      ballsPlayed += 1
     }
 
-    // log the overs' status after each over
+    swapPlayers(matchState)
+
+    matchState.battingTeam.oversPlayed += 1
+    console.log()
+    console.log(getOverSummary(
+      matchState.overs - matchState.battingTeam.oversPlayed,
+      matchState.runsTarget - matchState.battingTeam.runs))
+    console.log()
   }
 
-  // check the final state of the game (probably bowling team wins)
-  logMatchState(matchState)
+  matchStatus = getBowlingTeamWonString(
+    matchState.bowlingTeam.name,
+    matchState.runsTarget - 1 - matchState.battingTeam.runs,
+    (matchState.overs * 6) - matchState.battingTeam.ballsPlayed
+  )
+  console.log()
+  console.log(matchStatus)
+  matchState.battingTeam.playersPlayed.forEach(p => console.log(getBatsmanSummary(p)))
 
   return matchState
 }
