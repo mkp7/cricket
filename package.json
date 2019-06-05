@@ -1,0 +1,22 @@
+{
+  "name": "cricket",
+  "version": "0.1.0",
+  "description": "A simple cricket game simulation of remaining overs based on player probability of remaining players",
+  "main": "app.js",
+  "directories": {
+    "test": "tests"
+  },
+  "dependencies": {},
+  "devDependencies": {
+    "jest": "^24.8.0"
+  },
+  "scripts": {
+    "test": "jest"
+  },
+  "keywords": [
+    "cricket",
+    "simulation"
+  ],
+  "author": "Mehulkumar",
+  "license": "ISC"
+}

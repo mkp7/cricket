@@ -1,4 +1,4 @@
-const { getStdInput, formatData, validateData } = require('./misc')
+const { SimulateCricketMatch } = require('./simulate-game')
 
 /*
   accepts user input (current cricket game state) in string format
@@ -11,34 +11,66 @@ const { getStdInput, formatData, validateData } = require('./misc')
   and simulates the game which generates the result,
   returns the formatted result in string format
  */
-const main = stdInput => {
-  const [
-    RemainingOvers,
-    RemainingPlayers,
-    RequiredRuns,
-    PlayersProbabilities
-  ] = formatData(stdInput) // format the input
+const main = () => {
+  // set initial state of the match
+  const RUMRAHProb = [20, 30, 15, 5, 5, 1, 4, 20]
+    .map((p, i) => (new Array(p).fill(i)))
+    .reduce((a, b) => [...a, ...b])
+  const SHASHIProb = [30, 25, 5, 0, 5, 1, 4, 30]
+    .map((p, i) => (new Array(p).fill(i)))
+    .reduce((a, b) => [...a, ...b])
+  const KIRATProb = [5, 30, 25, 10, 15, 1, 9, 5]
+    .map((p, i) => (new Array(p).fill(i)))
+    .reduce((a, b) => [...a, ...b])
+  const NSProb = [10, 40, 20, 5, 10, 1, 4, 10]
+    .map((p, i) => (new Array(p).fill(i)))
+    .reduce((a, b) => [...a, ...b])
 
-  // validate the input format
-  const isValidInput = validateData( // validate the input
-    RemainingOvers,
-    RemainingPlayers,
-    RequiredRuns,
-    PlayersProbabilities
-  )
-
-  if (!isValidInput) { // check validation
-    throw new Error('invalid input')
+  const matchState = {
+    battingTeam: {
+      name: 'RCB',
+      players: [
+        {
+          name: 'RUMRAH',
+          probabilityArray: RUMRAHProb,
+          ballsPlayed: 0,
+          runs: 0
+        },
+        {
+          name: 'SHASHI',
+          probabilityArray: SHASHIProb,
+          ballsPlayed: 0,
+          runs: 0
+        }
+      ],
+      playersOut: [],
+      runs: 0,
+      ballsPlayed: 0,
+      oversPlayed: 0
+    },
+    bowlingTeam: {
+      name: 'CSK'
+    },
+    remainingOvers: 4,
+    requiredRuns: 40,
+    playerOnStrike: {
+      name: 'KIRAT',
+      probabilityArray: KIRATProb,
+      played: true,
+      ballsPlayed: 0,
+      runs: 0
+    },
+    playerOnNonStrike: {
+      name: 'NS',
+      probabilityArray: NSProb,
+      played: true,
+      ballsPlayed: 0,
+      runs: 0
+    }
   }
 
-  // call simulation function with input
-  // const result = SimulateCricketMatch(
-  //   RemainingOvers,
-  //   RemainingPlayers,
-  //   RequiredRuns,
-  //   PlayersProbabilities
-  // )
+  const result = SimulateCricketMatch(matchState)
 }
 
 // accept the input from stdin and pass main callback to accept
-getStdInput(main)
+main()
