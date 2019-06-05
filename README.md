@@ -26,3 +26,4 @@ OUTPUT:
 APPROACH TO CHALLENGE:
 - read the articles attached on SOLID principles, TDD and clean code
 - read the problem statement and wrote inital understanding of input, contraints and expected output
+- implemented simulation using dummy input that plays all the overs
