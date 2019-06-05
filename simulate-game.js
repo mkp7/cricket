@@ -1,5 +1,5 @@
 
-const playersShot = probabilityArray => {
+const playBall = probabilityArray => {
   if (!Array.isArray(probabilityArray) ||
       probabilityArray.length !== 100) {
     return null
@@ -12,7 +12,7 @@ const playersShot = probabilityArray => {
 // Bowling team wins by some runs
 
 // updates the match state and returns the match status
-const playABall = (result, matchState) => {
+const updateMatchState = (result, matchState) => {
   // player on strike plays the ball (StateUpdate)
   matchState.playerOnStrike.ballsPlayed += 1
   matchState.battingTeam.ballsPlayed += 1
@@ -71,8 +71,8 @@ const SimulateCricketMatch = (matchState) => {
     while (ballsPlayed <= 6) {
       ballsPlayed += 1 // ball
 
-      const result = playersShot(matchState.playerOnStrike.probabilityArray)
-      const matchStatus = playABall(result, matchState)
+      const result = playBall(matchState.playerOnStrike.probabilityArray)
+      const matchStatus = updateMatchState(result, matchState)
 
       // log the balls' status after each ball played
       // check match state
@@ -87,4 +87,4 @@ const SimulateCricketMatch = (matchState) => {
   return matchState
 }
 
-module.exports = { SimulateCricketMatch, playersShot }
+module.exports = { SimulateCricketMatch, playBall }
