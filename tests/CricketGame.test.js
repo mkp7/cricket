@@ -1,7 +1,7 @@
 const { distributeProbability } = require('../library')
 const Player = require('../Player')
 const CricketGame = require('../CricketGame')
-const { playBall } = require('../library')
+const { simulateBall } = require('../library')
 
 test('player\'s shot based on player\'s probability', () => {
   const playBallCases = [
@@ -13,7 +13,7 @@ test('player\'s shot based on player\'s probability', () => {
   ]
   const values = playBallCases
     .map(p => distributeProbability(p))
-    .map(c => playBall(c))
+    .map(c => simulateBall(c))
   values.forEach(v => {
     expect(v).toBeGreaterThanOrEqual(0)
     expect(v).toBeLessThan(100)
@@ -30,7 +30,7 @@ test('player\'s shot based on player\'s probability fail cases', () => {
   ]
   const values = playBallCases
     .map(p => distributeProbability(p))
-    .map(c => playBall(c))
+    .map(c => simulateBall(c))
   values.forEach(v => (expect(v).toBeNull()))
 })
 

@@ -39,7 +39,7 @@ function getBallSummary (player, result, overs, balls) {
   return `${overs}.${balls === 0 ? 6 : balls} ${player.name} scores ${result} ${runsString}`
 }
 
-function playBall (probabilityArray) {
+function simulateBall (probabilityArray) {
   if (!Array.isArray(probabilityArray) ||
       probabilityArray.length !== 100) {
     return null
@@ -142,7 +142,7 @@ module.exports = {
   getBatsmenSummary,
   getOverSummary,
   getBallSummary,
-  playBall,
+  simulateBall,
   getStdInput,
   parseData,
   validateData,
