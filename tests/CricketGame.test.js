@@ -1,6 +1,7 @@
-const { playBall, SimulateCricketMatch } = require('../simulate-game')
 const { distributeProbability } = require('../library')
 const Player = require('../Player')
+const CricketGame = require('../CricketGame')
+const { playBall } = require('../library')
 
 test('player\'s shot based on player\'s probability', () => {
   const playBallCases = [
@@ -58,14 +59,14 @@ test('simulate cricket match', () => {
   const overs = 4
   const runsTarget = 40
 
-  const matchState = {
+  const T20Finals = new CricketGame(
     battingTeam,
     bowlingTeam,
     overs,
     runsTarget,
-    playerOnStrike: battingTeam.playersPlayed[0],
-    playerOnNonStrike: battingTeam.playersPlayed[1]
-  }
+    battingTeam.playersPlayed[0],
+    battingTeam.playersPlayed[1]
+  )
 
-  expect(typeof SimulateCricketMatch(matchState)).toBe('object')
+  expect(T20Finals.start()).toBeUndefined()
 })

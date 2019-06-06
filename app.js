@@ -1,6 +1,6 @@
-const { SimulateCricketMatch } = require('./simulate-game')
 const { distributeProbability, getStdInput, parseData, validateData } = require('./library')
 const Player = require('./Player')
+const CricketGame = require('./CricketGame')
 
 /*
   accepts user input (current cricket game state) in string format
@@ -43,16 +43,16 @@ function main (input) {
 
   const bowlingTeam = { name: bowlingTeamName }
 
-  const matchState = {
+  const T20Finals = new CricketGame(
     battingTeam,
     bowlingTeam,
     overs,
     runsTarget,
-    playerOnStrike: battingTeam.playersPlayed[0],
-    playerOnNonStrike: battingTeam.playersPlayed[1]
-  }
+    battingTeam.playersPlayed[0],
+    battingTeam.playersPlayed[1]
+  )
 
-  const result = SimulateCricketMatch(matchState)
+  T20Finals.start()
 }
 
 // accept the input from stdin and pass main callback to accept

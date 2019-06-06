@@ -28,11 +28,11 @@ function getOverSummary (oversLeft, runsRemaining) {
 
 function getBallSummary (player, result, overs, balls) {
   if (result === 7) {
-    return `${overs}.${balls} ${player.name} got out`
+    return `${overs}.${balls === 0 ? 6 : balls} ${player.name} got out`
   }
 
   const runsString = result > 1 ? 'runs' : 'run'
-  return `${overs}.${balls} ${player.name} scores ${result} ${runsString}`
+  return `${overs}.${balls === 0 ? 6 : balls} ${player.name} scores ${result} ${runsString}`
 }
 
 function playBall (probabilityArray) {
