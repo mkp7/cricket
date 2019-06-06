@@ -87,17 +87,22 @@ function CricketGame (
     return false
   }
 
-  this.playBall = function playBall () {}
+  this.playBall = function playBall () {
+    const result = simulateBall(this.playerOnStrike.scoreProbabilities)
+    this.updateMatchState(result)
+  }
+
   this.playOver = function playOver (ballsPlayed) {
     if (this.isEnded()) {
       return false
     }
+
     if (ballsPlayed === 6) {
       swapPlayers(this)
       return true
     }
-    const result = simulateBall(this.playerOnStrike.scoreProbabilities)
-    this.updateMatchState(result, this)
+
+    this.playBall()
 
     return this.playOver(ballsPlayed + 1)
   }
