@@ -1,6 +1,6 @@
 const {
-  getBattingTeamWonString,
-  getBowlingTeamWonString,
+  getBattingTeamWinSummary,
+  getBowlingTeamWinSummary,
   getBatsmenSummary,
   getOverSummary,
   getBallSummary,
@@ -9,13 +9,13 @@ const {
 
 const noOp = () => {}
 
-function swapPlayers (matchState) {
+function swapPlayersStrike (game) {
   [
-    matchState.playerOnStrike,
-    matchState.playerOnNonStrike
+    game.playerOnStrike,
+    game.playerOnNonStrike
   ] = [
-    matchState.playerOnNonStrike,
-    matchState.playerOnStrike
+    game.playerOnNonStrike,
+    game.playerOnStrike
   ]
 }
 
@@ -43,13 +43,14 @@ function CricketGame (
   this.onGameEnd = noOp
 
   this.isEnded = function isEnded () {
+    const batsmenSummary = getBatsmenSummary(this.battingTeam.playersPlayed)
+
     if (this.battingTeam.runs >= this.runsTarget) {
-      const battingTeamWon = getBattingTeamWonString(
+      const battingTeamWon = getBattingTeamWinSummary(
         this.battingTeam.name,
         this.battingTeam.playersQueue.length + 1,
         (this.overs * 6) - this.battingTeam.ballsPlayed
       )
-      const batsmenSummary = getBatsmenSummary(this.battingTeam.playersPlayed)
       this.onGameEnd(`${battingTeamWon}${batsmenSummary}`)
 
       return true
@@ -57,28 +58,26 @@ function CricketGame (
 
     if (this.battingTeam.oversPlayed === this.overs) {
       if (this.battingTeam.runs === this.runsTarget - 1) {
-        // match tied
+        this.onGameEnd(`Match tied.\n${batsmenSummary}`)
         return true
       }
 
-      const bowlingTeamWon = getBowlingTeamWonString(
+      const bowlingTeamWon = getBowlingTeamWinSummary(
         this.bowlingTeam.name,
         this.runsTarget - 1 - this.battingTeam.runs,
         (this.overs * 6) - this.battingTeam.ballsPlayed
       )
-      const batsmenSummary = getBatsmenSummary(this.battingTeam.playersPlayed)
       this.onGameEnd(`${bowlingTeamWon}${batsmenSummary}`)
 
       return true
     }
 
     if (this.playerOnStrike.isOut) {
-      const bowlingTeamWon = getBowlingTeamWonString(
+      const bowlingTeamWon = getBowlingTeamWinSummary(
         this.bowlingTeam.name,
         this.runsTarget - 1 - this.battingTeam.runs,
         (this.overs * 6) - this.battingTeam.ballsPlayed
       )
-      const batsmenSummary = getBatsmenSummary(this.battingTeam.playersPlayed)
       this.onGameEnd(`${bowlingTeamWon}${batsmenSummary}`)
 
       return true
@@ -89,7 +88,7 @@ function CricketGame (
 
   this.playBall = function playBall () {
     const result = simulateBall(this.playerOnStrike.scoreProbabilities)
-    this.updateMatchState(result)
+    this.gameUpdate(result)
   }
 
   this.playOver = function playOver (ballsPlayed) {
@@ -98,7 +97,7 @@ function CricketGame (
     }
 
     if (ballsPlayed === 6) {
-      swapPlayers(this)
+      swapPlayersStrike(this)
       return true
     }
 
@@ -107,55 +106,51 @@ function CricketGame (
     return this.playOver(ballsPlayed + 1)
   }
 
-  this.updateMatchState = function updateMatchState (result) {
+  this.playerOutUpdate = function playerOutUpdate (result) {
+    this.playerOnStrike.isOut = true
+
+    this.onBallPlayed(getBallSummary(
+      this.playerOnStrike,
+      result,
+      this.battingTeam.oversPlayed,
+      this.battingTeam.ballsPlayed % 6
+    ))
+
+    if (this.battingTeam.playersQueue.length > 0) {
+      this.playerOnStrike = this.battingTeam.playersQueue.shift()
+      this.battingTeam.playersPlayed.push(this.playerOnStrike)
+    }
+  }
+
+  this.runsUpdate = function runsUpdate (runs) {
+    this.playerOnStrike.runs += runs
+    this.battingTeam.runs += runs
+
+    this.onBallPlayed(getBallSummary(
+      this.playerOnStrike,
+      runs,
+      this.battingTeam.oversPlayed,
+      this.battingTeam.ballsPlayed % 6
+    ))
+
+    if (runs % 2 === 1) {
+      swapPlayersStrike(this)
+    }
+  }
+
+  this.ballsUpdate = function ballsUpdate () {
     this.playerOnStrike.ballsPlayed += 1
     this.battingTeam.ballsPlayed += 1
+  }
+
+  this.gameUpdate = function gameUpdate (result) {
+    this.ballsUpdate()
 
     if (result === 7) {
-      this.playerOnStrike.isOut = true
-
-      this.onBallPlayed(getBallSummary(
-        this.playerOnStrike,
-        result,
-        this.battingTeam.oversPlayed,
-        this.battingTeam.ballsPlayed % 6
-      ))
-
-      if (this.battingTeam.playersQueue.length > 0) {
-        this.playerOnStrike = this.battingTeam.playersQueue.shift()
-        this.battingTeam.playersPlayed.push(this.playerOnStrike)
-      } else {
-        return getBowlingTeamWonString(
-          this.bowlingTeam.name,
-          this.runsTarget - 1 - this.battingTeam.runs,
-          (this.overs * 6) - this.battingTeam.ballsPlayed
-        )
-      }
+      this.playerOutUpdate(result)
     } else {
-      this.playerOnStrike.runs += result
-      this.battingTeam.runs += result
-
-      this.onBallPlayed(getBallSummary(
-        this.playerOnStrike,
-        result,
-        this.battingTeam.oversPlayed,
-        this.battingTeam.ballsPlayed % 6
-      ))
-
-      if (result % 2 === 1) {
-        swapPlayers(this)
-      }
-
-      if (this.battingTeam.runs >= this.runsTarget) {
-        return getBattingTeamWonString(
-          this.battingTeam.name,
-          this.battingTeam.playersQueue.length + 1,
-          (this.overs * 6) - this.battingTeam.ballsPlayed
-        )
-      }
+      this.runsUpdate(result)
     }
-
-    return false
   }
 
   this.start = function start () {

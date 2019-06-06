@@ -1,11 +1,11 @@
-function getBattingTeamWonString (team, wickets, balls) {
+function getBattingTeamWinSummary (team, wickets, balls) {
   const wicketString = wickets > 1 ? 'wickets' : 'wicket'
   const ballsString = balls > 1 ? 'balls' : 'ball'
 
   return `\n${team} won by ${wickets} ${wicketString} and ${balls} ${ballsString} remaining`
 }
 
-function getBowlingTeamWonString (team, runs, balls) {
+function getBowlingTeamWinSummary (team, runs, balls) {
   const runsString = runs > 1 ? 'runs' : 'run'
   const ballsString = balls > 1 ? 'balls' : 'ball'
 
@@ -136,8 +136,8 @@ function distributeProbability (probabilities) {
     .reduce((a, b) => [...a, ...b])
 }
 module.exports = {
-  getBattingTeamWonString,
-  getBowlingTeamWonString,
+  getBattingTeamWinSummary,
+  getBowlingTeamWinSummary,
   getBatsmanSummary,
   getBatsmenSummary,
   getOverSummary,
