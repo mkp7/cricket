@@ -107,7 +107,7 @@ function CricketGame (
           console.log()
           console.log(matchStatus)
           this.battingTeam.playersPlayed.forEach(p => console.log(getBatsmanSummary(p)))
-          return this
+          return
         }
 
         ballsPlayed += 1
