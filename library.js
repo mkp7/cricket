@@ -60,26 +60,33 @@ function getStdInput (cb) {
 function parseData (data) {
   const inputLines = data.split('\n')
 
+  const battingTeam = inputLines.shift()
+  const bowlingTeam = inputLines.shift()
   const [
-    RemainingOvers,
-    RemainingPlayers,
-    RequiredRuns
-  ] = inputLines[0]
+    remainingOvers,
+    remainingPlayers,
+    requiredRuns
+  ] = inputLines.shift()
     .split(' ')
     .map(d => parseInt(d))
 
-  const PlayersProbabilities = inputLines
-    .slice(1)
-    .map(probData => probData
-      .split(' ')
-      .map(d => parseInt(d))
+  const playersProbabilities = []
+  for (let i = 0; i < remainingPlayers * 2; i += 2) {
+    playersProbabilities.push(
+      [
+        inputLines[i],
+        inputLines[i + 1].split(' ').map(d => parseInt(d))
+      ]
     )
+  }
 
   return [
-    RemainingOvers,
-    RemainingPlayers,
-    RequiredRuns,
-    PlayersProbabilities
+    battingTeam,
+    bowlingTeam,
+    remainingOvers,
+    remainingPlayers,
+    requiredRuns,
+    playersProbabilities
   ]
 }
 
@@ -87,20 +94,20 @@ function parseData (data) {
  validates the parsed data
  */
 function validateData (
-  RemainingOvers,
-  RemainingPlayers,
-  RequiredRuns,
-  PlayersProbabilities
+  remainingOvers,
+  remainingPlayers,
+  requiredRuns,
+  playersProbabilities
 ) {
-  if ([RemainingOvers,
-    RemainingPlayers,
-    RequiredRuns]
+  if ([remainingOvers,
+    remainingPlayers,
+    requiredRuns]
     .some(isNaN)) {
     return false
   }
 
-  if (PlayersProbabilities.length !== RemainingPlayers ||
-    PlayersProbabilities.some(d => (
+  if (playersProbabilities.length !== remainingPlayers ||
+    playersProbabilities.some(d => (
       d.length !== 8 ||
       d.some(isNaN)
     ))

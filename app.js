@@ -1,5 +1,5 @@
 const { SimulateCricketMatch } = require('./simulate-game')
-const { distributeProbability } = require('./library')
+const { distributeProbability, getStdInput, parseData, validateData } = require('./library')
 const Player = require('./Player')
 
 /*
@@ -13,7 +13,7 @@ const Player = require('./Player')
   and simulates the game which generates the result,
   returns the formatted result in string format
  */
-function main () {
+function main (input) {
   // set initial state of the match
   const playersData = [
     ['Kirat Boli', [5, 30, 25, 10, 15, 1, 9, 5]],
@@ -52,4 +52,4 @@ function main () {
 }
 
 // accept the input from stdin and pass main callback to accept
-main()
+getStdInput(main)
