@@ -52,6 +52,10 @@ function main (input) {
     battingTeam.playersPlayed[1]
   )
 
+  T20Finals.onBallPlayed = console.log
+  T20Finals.onOverPlayed = console.log
+  T20Finals.onGameEnd = console.log
+
   T20Finals.start()
 }
 

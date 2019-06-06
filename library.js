@@ -2,14 +2,14 @@ function getBattingTeamWonString (team, wickets, balls) {
   const wicketString = wickets > 1 ? 'wickets' : 'wicket'
   const ballsString = balls > 1 ? 'balls' : 'ball'
 
-  return `${team} won by ${wickets} ${wicketString} and ${balls} ${ballsString} remaining`
+  return `\n${team} won by ${wickets} ${wicketString} and ${balls} ${ballsString} remaining`
 }
 
 function getBowlingTeamWonString (team, runs, balls) {
   const runsString = runs > 1 ? 'runs' : 'run'
   const ballsString = balls > 1 ? 'balls' : 'ball'
 
-  return `${team} won by ${runs} ${runsString} and ${balls} ${ballsString} remaining`
+  return `\n${team} won by ${runs} ${runsString} and ${balls} ${ballsString} remaining`
 }
 
 function getBatsmanSummary (player) {
@@ -19,11 +19,15 @@ function getBatsmanSummary (player) {
   return `${player.name} - ${player.runs}${notOutStar} (${player.ballsPlayed} ${ballsString})`
 }
 
+function getBatsmenSummary (players) {
+  return players.reduce((a, p) => `${a}\n${(getBatsmanSummary(p))}`, '\n')
+}
+
 function getOverSummary (oversLeft, runsRemaining) {
   const oversString = oversLeft > 1 ? 'overs' : 'over'
   const runsString = runsRemaining > 1 ? 'runs' : 'run'
 
-  return `${oversLeft} ${oversString} left. ${runsRemaining} ${runsString} to win`
+  return `\n${oversLeft} ${oversString} left. ${runsRemaining} ${runsString} to win`
 }
 
 function getBallSummary (player, result, overs, balls) {
@@ -135,6 +139,7 @@ module.exports = {
   getBattingTeamWonString,
   getBowlingTeamWonString,
   getBatsmanSummary,
+  getBatsmenSummary,
   getOverSummary,
   getBallSummary,
   playBall,

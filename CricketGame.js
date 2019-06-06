@@ -1,11 +1,13 @@
 const {
   getBattingTeamWonString,
   getBowlingTeamWonString,
-  getBatsmanSummary,
+  getBatsmenSummary,
   getOverSummary,
   getBallSummary,
   playBall
 } = require('./library')
+
+const noOp = () => {}
 
 function swapPlayers (matchState) {
   [
@@ -35,11 +37,14 @@ function CricketGame (
   this.runsTarget = runsTarget
   this.playerOnStrike = playerOnStrike
   this.playerOnNonStrike = playerOnNonStrike
-  this.onBallPlayed = function () {}
-  this.onOverPlayed = function () {}
-  this.onGameEnd = function () {}
+
+  this.onBallPlayed = noOp
+  this.onOverPlayed = noOp
+  this.onGameEnd = noOp
+
   this.playBall = function playBall () {}
   this.playOver = function playOver () {}
+
   this.updateMatchState = function updateMatchState (result) {
     this.playerOnStrike.ballsPlayed += 1
     this.battingTeam.ballsPlayed += 1
@@ -47,7 +52,7 @@ function CricketGame (
     if (result === 7) {
       this.playerOnStrike.isOut = true
 
-      console.log(getBallSummary(
+      this.onBallPlayed(getBallSummary(
         this.playerOnStrike,
         result,
         this.battingTeam.oversPlayed,
@@ -68,7 +73,7 @@ function CricketGame (
       this.playerOnStrike.runs += result
       this.battingTeam.runs += result
 
-      console.log(getBallSummary(
+      this.onBallPlayed(getBallSummary(
         this.playerOnStrike,
         result,
         this.battingTeam.oversPlayed,
@@ -92,10 +97,9 @@ function CricketGame (
   this.start = function start () {
     let matchStatus = false
 
-    console.log(getOverSummary(
+    this.onOverPlayed(getOverSummary(
       this.overs - this.battingTeam.oversPlayed,
       this.runsTarget - this.battingTeam.runs))
-    console.log()
     while (this.battingTeam.oversPlayed < this.overs) {
       let ballsPlayed = 0
 
@@ -104,9 +108,7 @@ function CricketGame (
         matchStatus = this.updateMatchState(result, this)
 
         if (matchStatus !== false) {
-          console.log()
-          console.log(matchStatus)
-          this.battingTeam.playersPlayed.forEach(p => console.log(getBatsmanSummary(p)))
+          this.onGameEnd(`${matchStatus}${getBatsmenSummary(this.battingTeam.playersPlayed)}`)
           return
         }
 
@@ -116,11 +118,10 @@ function CricketGame (
       swapPlayers(this)
 
       this.battingTeam.oversPlayed += 1
-      console.log()
-      console.log(getOverSummary(
+      this.onOverPlayed(getOverSummary(
         this.overs - this.battingTeam.oversPlayed,
-        this.runsTarget - this.battingTeam.runs))
-      console.log()
+        this.runsTarget - this.battingTeam.runs)
+      )
     }
 
     matchStatus = getBowlingTeamWonString(
@@ -128,9 +129,7 @@ function CricketGame (
       this.runsTarget - 1 - this.battingTeam.runs,
       (this.overs * 6) - this.battingTeam.ballsPlayed
     )
-    console.log()
-    console.log(matchStatus)
-    this.battingTeam.playersPlayed.forEach(p => console.log(getBatsmanSummary(p)))
+    this.onGameEnd(`${matchStatus}${getBatsmenSummary(this.battingTeam.playersPlayed)}`)
   }
 }
 
