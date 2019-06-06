@@ -63,15 +63,15 @@ function parseData (data) {
   const battingTeam = inputLines.shift()
   const bowlingTeam = inputLines.shift()
   const [
-    remainingOvers,
-    remainingPlayers,
-    requiredRuns
+    overs,
+    playersRemaining,
+    runsTarget
   ] = inputLines.shift()
     .split(' ')
     .map(d => parseInt(d))
 
   const playersProbabilities = []
-  for (let i = 0; i < remainingPlayers * 2; i += 2) {
+  for (let i = 0; i < playersRemaining * 2; i += 2) {
     playersProbabilities.push(
       [
         inputLines[i],
@@ -83,9 +83,9 @@ function parseData (data) {
   return [
     battingTeam,
     bowlingTeam,
-    remainingOvers,
-    remainingPlayers,
-    requiredRuns,
+    overs,
+    playersRemaining,
+    runsTarget,
     playersProbabilities
   ]
 }
@@ -94,22 +94,30 @@ function parseData (data) {
  validates the parsed data
  */
 function validateData (
-  remainingOvers,
-  remainingPlayers,
-  requiredRuns,
-  playersProbabilities
+  battingTeam,
+  bowlingTeam,
+  overs,
+  playersRemaining,
+  runsTarget,
+  playersData
 ) {
-  if ([remainingOvers,
-    remainingPlayers,
-    requiredRuns]
+  if (typeof battingTeam !== 'string' ||
+      typeof bowlingTeam !== 'string') {
+    return false
+  }
+
+  if ([overs,
+    playersRemaining,
+    runsTarget]
     .some(isNaN)) {
     return false
   }
 
-  if (playersProbabilities.length !== remainingPlayers ||
-    playersProbabilities.some(d => (
-      d.length !== 8 ||
-      d.some(isNaN)
+  if (playersData.length !== playersRemaining ||
+    playersData.some(([name, prob]) => (
+      typeof name !== 'string' ||
+      prob.length !== 8 ||
+      prob.some(isNaN)
     ))
   ) {
     return false

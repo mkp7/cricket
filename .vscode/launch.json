@@ -8,7 +8,9 @@
       "type": "node",
       "request": "launch",
       "name": "Launch Program",
-      "program": "${workspaceFolder}/app.js"
+      "program": "${workspaceFolder}/app.js",
+      "console": "integratedTerminal",
+      "args": ["<", "${workspaceFolder}/tests/cases/1.txt"]
     }
   ]
 }
