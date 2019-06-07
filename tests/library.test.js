@@ -75,6 +75,11 @@ test('test validateData; validates parsed data', () => {
   expect(isValidInput).toBe(true)
 })
 
+test('test distributeProbability', () => {
+  expect(distributeProbability(playersData[0][1]))
+    .toHaveLength(100)
+})
+
 test('test get batting team win summary', () => {
   expect(
     getBattingTeamWinSummary('RCB', 4, 8)
