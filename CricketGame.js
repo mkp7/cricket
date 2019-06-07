@@ -72,7 +72,7 @@ function CricketGame (
     }
 
     if (ballsPlayed === 6) {
-      swapPlayersStrike(this)
+      this.swapPlayersStrike(this)
       return true
     }
 
@@ -99,7 +99,7 @@ function CricketGame (
     this.onBallPlayed(this)
 
     if (this.ballProb % 2 === 1) {
-      swapPlayersStrike(this)
+      this.swapPlayersStrike(this)
     }
   }
 
