@@ -34,39 +34,44 @@ test('player\'s shot based on player\'s probability fail cases', () => {
   values.forEach(v => (expect(v).toBeNull()))
 })
 
-test('simulate cricket match', () => {
-  const playersData = [
-    ['Kirat Boli', [5, 30, 25, 10, 15, 1, 9, 5]],
-    ['N.S Nodhi', [10, 40, 20, 5, 10, 1, 4, 10]],
-    ['R Rumrah', [20, 30, 15, 5, 5, 1, 4, 20]],
-    ['Shashi Henra', [30, 25, 5, 0, 5, 1, 4, 30]]
-  ]
+const playersData = [
+  ['Kirat Boli', [5, 30, 25, 10, 15, 1, 9, 5]],
+  ['N.S Nodhi', [10, 40, 20, 5, 10, 1, 4, 10]],
+  ['R Rumrah', [20, 30, 15, 5, 5, 1, 4, 20]],
+  ['Shashi Henra', [30, 25, 5, 0, 5, 1, 4, 30]]
+]
 
-  const players = playersData
-    .map(pd => (new Player(pd[0], distributeProbability(pd[1]))))
+const players = playersData
+  .map(pd => (new Player(pd[0], distributeProbability(pd[1]))))
 
-  const battingTeam = {
-    name: 'RCB',
-    playersQueue: players,
-    playersPlayed: [players.shift(), players.shift()],
-    ballsPlayed: 0,
-    oversPlayed: 0,
-    runs: 0
-  }
+const battingTeam = {
+  name: 'RCB',
+  playersQueue: players,
+  playersPlayed: [players.shift(), players.shift()],
+  ballsPlayed: 0,
+  oversPlayed: 0,
+  runs: 0
+}
 
-  const bowlingTeam = { name: 'CSK' }
+const bowlingTeam = { name: 'CSK' }
 
-  const overs = 4
-  const runsTarget = 40
+const overs = 4
+const runsTarget = 40
 
-  const T20Finals = new CricketGame(
-    battingTeam,
-    bowlingTeam,
-    overs,
-    runsTarget,
-    battingTeam.playersPlayed[0],
-    battingTeam.playersPlayed[1]
-  )
-
-  expect(T20Finals.start()).toBeUndefined()
+const T20Test = new CricketGame(
+  battingTeam,
+  bowlingTeam,
+  overs,
+  runsTarget,
+  battingTeam.playersPlayed[0],
+  battingTeam.playersPlayed[1]
+)
+test('test cricket match simulation', () => {
+  expect(T20Test.start()).toBeUndefined()
+  expect(
+    T20Test.battingTeam.runs >= T20Test.runsTarget ||
+    (T20Test.battingTeam.oversPlayed === T20Test.overs &&
+    T20Test.battingTeam.runs === T20Test.runsTarget - 1) ||
+    T20Test.playerOnStrike.isOut
+  ).toBeTruthy()
 })

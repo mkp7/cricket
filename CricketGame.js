@@ -72,6 +72,7 @@ function CricketGame (
     }
 
     if (ballsPlayed === 6) {
+      this.battingTeam.oversPlayed += 1
       this.swapPlayersStrike(this)
       return true
     }
@@ -122,7 +123,6 @@ function CricketGame (
     this.onOverPlayed(this)
 
     while (this.playOver(0)) {
-      this.battingTeam.oversPlayed += 1
       this.onOverPlayed(this)
     }
   }
