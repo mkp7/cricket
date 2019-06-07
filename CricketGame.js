@@ -1,23 +1,6 @@
-const {
-  getBattingTeamWinSummary,
-  getBowlingTeamWinSummary,
-  getBatsmenSummary,
-  getOverSummary,
-  getBallSummary,
-  simulateBall
-} = require('./library')
+const { simulateBall } = require('./library')
 
 const noOp = () => {}
-
-function swapPlayersStrike (game) {
-  [
-    game.playerOnStrike,
-    game.playerOnNonStrike
-  ] = [
-    game.playerOnNonStrike,
-    game.playerOnStrike
-  ]
-}
 
 /*
   updates the match state for each ball played and returns the match status
@@ -38,48 +21,40 @@ function CricketGame (
   this.playerOnStrike = playerOnStrike
   this.playerOnNonStrike = playerOnNonStrike
 
+  this.ballProb = null
+
   this.onBallPlayed = noOp
   this.onOverPlayed = noOp
   this.onGameEnd = noOp
 
+  this.swapPlayersStrike = function swapPlayersStrike (game) {
+    [
+      game.playerOnStrike,
+      game.playerOnNonStrike
+    ] = [
+      game.playerOnNonStrike,
+      game.playerOnStrike
+    ]
+  }
+
   this.isEnded = function isEnded () {
-    const batsmenSummary = getBatsmenSummary(this.battingTeam.playersPlayed)
-
     if (this.battingTeam.runs >= this.runsTarget) {
-      const battingTeamWon = getBattingTeamWinSummary(
-        this.battingTeam.name,
-        this.battingTeam.playersQueue.length + 1,
-        (this.overs * 6) - this.battingTeam.ballsPlayed
-      )
-      this.onGameEnd(`${battingTeamWon}${batsmenSummary}`)
-
+      this.onGameEnd(this)
       return true
     }
 
     if (this.battingTeam.oversPlayed === this.overs) {
       if (this.battingTeam.runs === this.runsTarget - 1) {
-        this.onGameEnd(`Match tied.\n${batsmenSummary}`)
+        this.onGameEnd(this)
         return true
       }
 
-      const bowlingTeamWon = getBowlingTeamWinSummary(
-        this.bowlingTeam.name,
-        this.runsTarget - 1 - this.battingTeam.runs,
-        (this.overs * 6) - this.battingTeam.ballsPlayed
-      )
-      this.onGameEnd(`${bowlingTeamWon}${batsmenSummary}`)
-
+      this.onGameEnd(this)
       return true
     }
 
     if (this.playerOnStrike.isOut) {
-      const bowlingTeamWon = getBowlingTeamWinSummary(
-        this.bowlingTeam.name,
-        this.runsTarget - 1 - this.battingTeam.runs,
-        (this.overs * 6) - this.battingTeam.ballsPlayed
-      )
-      this.onGameEnd(`${bowlingTeamWon}${batsmenSummary}`)
-
+      this.onGameEnd(this)
       return true
     }
 
@@ -87,8 +62,8 @@ function CricketGame (
   }
 
   this.playBall = function playBall () {
-    const result = simulateBall(this.playerOnStrike.scoreProbabilities)
-    this.gameUpdate(result)
+    this.ballProb = simulateBall(this.playerOnStrike.scoreProbabilities)
+    this.gameUpdate()
   }
 
   this.playOver = function playOver (ballsPlayed) {
@@ -106,15 +81,10 @@ function CricketGame (
     return this.playOver(ballsPlayed + 1)
   }
 
-  this.playerOutUpdate = function playerOutUpdate (result) {
+  this.playerOutUpdate = function playerOutUpdate () {
     this.playerOnStrike.isOut = true
 
-    this.onBallPlayed(getBallSummary(
-      this.playerOnStrike,
-      result,
-      this.battingTeam.oversPlayed,
-      this.battingTeam.ballsPlayed % 6
-    ))
+    this.onBallPlayed(this)
 
     if (this.battingTeam.playersQueue.length > 0) {
       this.playerOnStrike = this.battingTeam.playersQueue.shift()
@@ -122,18 +92,13 @@ function CricketGame (
     }
   }
 
-  this.runsUpdate = function runsUpdate (runs) {
-    this.playerOnStrike.runs += runs
-    this.battingTeam.runs += runs
+  this.runsUpdate = function runsUpdate () {
+    this.playerOnStrike.runs += this.ballProb
+    this.battingTeam.runs += this.ballProb
 
-    this.onBallPlayed(getBallSummary(
-      this.playerOnStrike,
-      runs,
-      this.battingTeam.oversPlayed,
-      this.battingTeam.ballsPlayed % 6
-    ))
+    this.onBallPlayed(this)
 
-    if (runs % 2 === 1) {
+    if (this.ballProb % 2 === 1) {
       swapPlayersStrike(this)
     }
   }
@@ -143,29 +108,22 @@ function CricketGame (
     this.battingTeam.ballsPlayed += 1
   }
 
-  this.gameUpdate = function gameUpdate (result) {
+  this.gameUpdate = function gameUpdate () {
     this.ballsUpdate()
 
-    if (result === 7) {
-      this.playerOutUpdate(result)
+    if (this.ballProb === 7) {
+      this.playerOutUpdate()
     } else {
-      this.runsUpdate(result)
+      this.runsUpdate()
     }
   }
 
   this.start = function start () {
-    this.onOverPlayed(getOverSummary(
-      this.overs - this.battingTeam.oversPlayed,
-      this.runsTarget - this.battingTeam.runs
-    ))
+    this.onOverPlayed(this)
 
-    while (this.battingTeam.oversPlayed < this.overs &&
-      this.playOver(0)) {
+    while (this.playOver(0)) {
       this.battingTeam.oversPlayed += 1
-      this.onOverPlayed(getOverSummary(
-        this.overs - this.battingTeam.oversPlayed,
-        this.runsTarget - this.battingTeam.runs
-      ))
+      this.onOverPlayed(this)
     }
   }
 }
