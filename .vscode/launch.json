@@ -10,7 +10,7 @@
       "name": "Launch Program",
       "program": "${workspaceFolder}/app.js",
       "console": "integratedTerminal",
-      "args": ["<", "${workspaceFolder}/tests/cases/1.txt"]
+      "args": ["<", "${workspaceFolder}/tests/cases/pass1.txt"]
     }
   ]
 }

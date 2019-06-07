@@ -2,8 +2,11 @@ const {
   parseData,
   validateData,
   getBattingTeamWinSummary,
-  getBowlingTeamWinSummary
+  getBowlingTeamWinSummary,
+  getBatsmenSummary,
+  distributeProbability
 } = require('../library')
+const Player = require('../Player')
 
 const inputData = `RCB
 CSK
@@ -54,4 +57,10 @@ test('test get bowling team win summary', () => {
   expect(
     getBowlingTeamWinSummary('CSK', 3, 1)
   ).toBe('\nCSK won by 3 runs and 1 ball remaining')
+})
+
+test('test get batsmen summary', () => {
+  expect(getBatsmenSummary(
+    [['KK', [5, 30, 25, 10, 15, 1, 9, 5]]].map(pd => (new Player(pd[0], distributeProbability(pd[1]))))
+  )).toBe('\n\nKK - 0* (0 ball)')
 })
