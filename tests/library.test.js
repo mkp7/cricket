@@ -1,4 +1,9 @@
-const { parseData, validateData } = require('../library')
+const {
+  parseData,
+  validateData,
+  getBattingTeamWinSummary,
+  getBowlingTeamWinSummary
+} = require('../library')
 
 const inputData = `RCB
 CSK
@@ -37,4 +42,16 @@ test('test validateData; validates parsed data', () => {
     playersData
   )
   expect(isValidInput).toBe(true)
+})
+
+test('test get batting team win summary', () => {
+  expect(
+    getBattingTeamWinSummary('RCB', 4, 8)
+  ).toBe('\nRCB won by 4 wickets and 8 balls remaining')
+})
+
+test('test get bowling team win summary', () => {
+  expect(
+    getBowlingTeamWinSummary('CSK', 3, 1)
+  ).toBe('\nCSK won by 3 runs and 1 ball remaining')
 })
