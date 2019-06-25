@@ -72,6 +72,6 @@ test('test cricket match simulation', () => {
     T20Test.battingTeam.runs >= T20Test.runsTarget ||
     (T20Test.battingTeam.oversPlayed === T20Test.overs &&
     T20Test.battingTeam.runs === T20Test.runsTarget - 1) ||
-    T20Test.playerOnStrike.isOut
+    T20Test.playerOnStrike.isOut === true
   ).toBeTruthy()
 })
